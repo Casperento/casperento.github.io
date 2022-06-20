@@ -23,7 +23,7 @@ timezone: America/Sao_Paulo
 
 title: Casperento                          # the main title
 
-tagline: Personal's blog   # it will display as the sub-title
+tagline: Personal blog   # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
   Casperento's personal blog.
