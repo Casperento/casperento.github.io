@@ -3,10 +3,10 @@ layout: post
 title: How to split strings using regex
 date: 2022-09-13 20:30 -0300
 categories:
-	- [Pattern matching]
+- Pattern matching
 tags:
-	- [regex]
-	- [python]
+- regex
+- python
 ---
 
 ## Problem Statement
@@ -97,7 +97,7 @@ For the sake of simplicity I'm going to generate 2 paragraphs with a total of 50
 
 First, I wanna match phrases that doesn't end with any of the delimiters (```.?!```). So, I came up with the following pattern:
 
-```[^.!?]+```
+``` [^.!?]+ ```
 
 If this is correct, I'll probably get something like:
 
@@ -137,11 +137,11 @@ If this is correct, I'll probably get something like:
 ' Eros magnis ve dictumst'
 ```
 
-Wait, but this is almost the same thing as running ```split``` method onto my input string. Note that I lost delimiters' information too...
+Wait, but this is almost the same thing as running **split** method onto my input string. Note that I've lost delimiters' information too...
 
 To fix this, I'm going to include delimiters in my pattern by adding the ```[.!?]``` sub-pattern into the end of my first one:
 
-```[^.!?]+[.!?]```
+``` [^.!?]+[.!?] ```
 
 Then, the output is:
 
@@ -177,7 +177,9 @@ Then, the output is:
 
 ### Python Code
 
-```Python
+Given the final pattern, I search my input string (lines of _test.txt_ file) for all matches using the ```re.findall(...)``` [function](https://docs.python.org/3/library/re.html#re.findall).
+
+```python
 import re
 
 # Finding all pattern's matches
