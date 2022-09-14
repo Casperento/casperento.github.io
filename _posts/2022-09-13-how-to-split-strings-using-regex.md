@@ -11,7 +11,7 @@ tags:
 
 ## Problem Statement
 
-What if i tell you to split a paragraph in phrases delimited by ```.?!``` ?
+What if I ask you to split a paragraph in phrases delimited by ```.?!``` ?
 
 What would be your first approach ?
 
