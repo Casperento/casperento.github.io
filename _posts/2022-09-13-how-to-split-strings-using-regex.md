@@ -1,6 +1,6 @@
 ---
 layout: post
-title: How to split strings using regex
+title: How to split strings using regex?
 date: 2022-09-13 20:30 -0300
 categories:
 - Pattern matching
