@@ -74,7 +74,7 @@ Now, build the project with:
 $ cmake --build .
 ```
 
-###### Running LIT
+##### Running LIT
 
 To run the tests with LIT, create a separate folder for the results and run it:
 
@@ -106,7 +106,7 @@ Then, build the project again:
 $ cmake --build .
 ```
 
-###### Running LIT
+##### Running LIT
 
 Run the tests with LIT again:
 
@@ -118,7 +118,7 @@ $ llvm-lit -v -o ~/lit-results/results_func-merging.json .
 
 To compare the results by **instcount** and **size..text** metrics, run the following python script provided by the test suite:
 
-Assuming your current directory is *"path/to/llvm-test-suite"*.
+Assuming your current directory is *"path/to/llvm-test-suite/build"*.
 
 ```bash
 $ python3 ../utils/compare.py --full --diff -m instcount -m size..text ~/lit-results/results_instcount.json ~/lit-results/results_func-merging.json > ~/lit-results/test-results.txt
@@ -128,7 +128,7 @@ $ python3 ../utils/compare.py --full --diff -m instcount -m size..text ~/lit-res
 
 ## Conclusion
 
-Our objective is to compile the Test Suite using different LLVM passes for metric comparison. Initially, we compile the suite with the **instcount** pass to determine the instruction count in generated bitcode files, establishing a baseline metric. Subsequently, we compile the same suite with the **func-merging** pass applied to the binaries and then reevaluate the instruction count.
+Our objective is to compile the Test Suite using different LLVM passes for metric comparison. Initially, we compile the suite with the **instcount** pass to determine the instruction count of generated bitcode files, establishing a baseline metric. Subsequently, we compile the same suite with the **func-merging** pass applied to the binaries and then reevaluate the instruction count.
 
 By analyzing the differences in instruction counts between the baseline (using **instcount**) and the experimental setup (with **func-merging**), we can draw conclusions on the effectiveness of the **func-merging** pass for code compression within the LLVM framework.
 
