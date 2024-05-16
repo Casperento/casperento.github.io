@@ -1,6 +1,6 @@
 ---
 layout: post
-title: How build LLVM Test Suite with an arbitrary pass?
+title: How to build the LLVM Test Suite with an arbitrary pass?
 categories:
 - Compilers
 tags:
@@ -8,17 +8,46 @@ tags:
 - open-source
 date: 2024-05-16 00:00 +0000
 ---
-Recently, I embarked on my journey in compiler design by joining UFMG's Compilers Lab as a graduate researcher.
+Recently, I embarked on my journey in compiler design by joining [UFMG's Compilers Lab](https://lac-dcc.github.io/) as a graduate researcher.
 
-My first challenge was to become familiar with LLVM and learn how to develop a pass for it. However, that's not all, as we are also working with code compression techniques and require an infrastructure to test our developed passes. Fortunately, the LLVM Test Suite is available to us.
+My first challenge was to become familiar with LLVM and learn how to develop a pass for it. However, that's not all, as we are also working with code compression techniques and require an infrastructure to test our developed passes. Fortunately, the [LLVM Test Suite](https://github.com/llvm/llvm-test-suite) is available to us.
 
-We are using LLVM 17 and its suite of test suites. However, we discovered that compiling the entire project with a newly created pass is not a trivial task, since there are no intermediate steps in the CMake project for us to specify our new pass in the compilation pipeline. Therefore, we began researching new ways to compile the entire project with our new pass.
+We are using LLVM 17 and its test suite. However, we discovered that compiling the entire project with a newly created pass is not a trivial task, since there are no intermediate steps in the CMake project for us to specify our new pass in the compilation pipeline. Therefore, we began researching new ways to compile the entire project with our new pass.
+
+## Introduction
+
+Perhaps one of the nicest parts of the LLVM project is the Test Suite. This is a large collection of C and C++ benchmarks that compiler engineers can use to test the techniques that they implement. The suite includes a diverse array of programs and libraries, ranging from small, single-file programs to large, complex applications, ensuring comprehensive coverage of real-world scenarios.
+
+By leveraging this extensive test suite, developers can assess the performance, correctness, and robustness of their compiler optimizations and transformations. Furthermore, the suite is continually updated and maintained by the LLVM community, incorporating new benchmarks and reflecting the latest industry practices. This makes it an invaluable resource for anyone involved in compiler development or research, providing a solid foundation for testing and validating new ideas in compiler technology.
 
 ## Problem Statement
 
-Our task is to compile the entire Test Suite with an arbitrary pass, so we can compare different metrics between a baseline and a chosen experiment.
+Our task is to compile the entire Test Suite with an arbitrary pass, so that we can compare different metrics between a baseline and a chosen experiment. In other words, we want to enable the following pipeline:
 
-In our case, we wanted to compile the Test Suite with the **instcount** pass, to count how many instructions the generated bitcode files had (our baseline). Then, we'd build the same project but with the **func-merging** pass applied into the binaries and then count the instructions again (our experiment).
+1. Compile every program in the Test Suite, producing a set of LLVM IR
+files. Let this collection of bytecodes be called "Control";
+2. Collect metrics from "Control";
+3. Compile every program in the Test Suite, this time with a set of
+passes of interest, producing a set of LLVM IR files. Let this new
+collection of bytecodes be called "Test";
+4. Collect metrics from "Test";
+5. Produce a report comparing metrics from "Control" and "Test".
+
+As an example, assume that we want to test the [func-merging](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354)
+pass. This pass takes functions that are structurally equal and merge
+them to reduce code size. Imagine that we want to measure the
+code-size reduction enabled by this optimization. LLVM provides a pass
+to count instructions: **instcount**. Thus, we can combine these two
+passes to get the numbers that we want, e.g.:
+
+1. Produce the "Control" set of bytecode files;
+2. Use the **instcount** pass to count the number of instructions in the
+"Control" dataset;
+3. Produce the "Test" dataset applying **func-merging** onto the Control dataset;
+4. Use the **instcount** pass to count the number of instructions in the
+"Test" dataset;
+5. Produce a report comparing the number of instructions in the
+"Control" and "Test" datasets.
 
 ## Solution
 
@@ -85,7 +114,7 @@ $ llvm-lit -v -o ~/lit-results/results_instcount.json .
 
 ##### Second running
 
-The chosen pass' name must be specified by the **TEST_SUITE_SELECTED_PASSES*** CMake env. variable. If you need to run a sequence of passes, just write them in the desired order separated by ',', like:
+The chosen pass' name must be specified by the **TEST_SUITE_SELECTED_PASSES** CMake env. variable. If you need to run a sequence of passes, just write them in the desired order separated by a comma, like:
 
 > -DTEST_SUITE_SELECTED_PASSES=pass-1,pass-2
 
@@ -128,7 +157,7 @@ $ python3 ../utils/compare.py --full --diff -m instcount -m size..text ~/lit-res
 
 ## Conclusion
 
-Our objective is to compile the Test Suite using different LLVM passes for metric comparison. Initially, we compile the suite with the **instcount** pass to determine the instruction count of generated bitcode files, establishing a baseline metric. Subsequently, we compile the same suite with the **func-merging** pass applied to the binaries and then reevaluate the instruction count.
+Our objective is to compile the Test Suite using different LLVM passes for metric comparison. Initially, we compile the suite with the **instcount** pass to determine the instruction count of generated bytecode files, establishing a baseline metric. Subsequently, we compile the same suite with the **func-merging** pass applied to the binaries and then reevaluate the instruction count.
 
 By analyzing the differences in instruction counts between the baseline (using **instcount**) and the experimental setup (with **func-merging**), we can draw conclusions on the effectiveness of the **func-merging** pass for code compression within the LLVM framework.
 
