@@ -1,5 +1,5 @@
 ---
-title: Welcome To My Blog!
+title: Welcome to my blog!
 date: 2022-06-19 23:00:00 +/-TTTT
 categories: [About]
 tags: [about]     # TAG names should always be lowercase
