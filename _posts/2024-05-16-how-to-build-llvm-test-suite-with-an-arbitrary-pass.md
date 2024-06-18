@@ -197,13 +197,13 @@ $ cmake --build . -- -k 0
 
 ### Running and Comparing Experiments Automatically
 
-I had three passes to test and collect code size metrics. These are **func-merging**, **loop-rolling** and **brfusion**. Basically, if I want to collect those metrics, I just rebuild the test suite over and over. But there may have some build targets that failed, tests that doesn't pass when they are compiled with different passes or tests that doesn't terminate under LIT.
+I had three passes to test and collect code size metrics. These are [func-merging](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-883188285e4fa4d291d33f72aec6ac43acb685f6844c4a9c4e34ae2523268ed4), [loop-rolling](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-e45e1412a61406b2aaaa1b2daf065500b8e95f6c08aec97a64f80b8351652640) and [brfusion](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-f72b25ed9b88723fe206a157fc8b7441447c8747c754c13bf605ba7347768389). Basically, if I want to collect those metrics, I just rebuild the test suite over and over. But there may have some build targets that failed, tests that don't pass when they are compiled with different passes or tests that don't terminate under LIT.
 
 To tackle these problems, my current approach is to ignore all files that are associated with failed tests and run the experiments in a chosen order.
 
-Building the test suite with my passes before the baseline guarantee that my comparison of results are computed correctly, given the same set of ```.test``` files.
+Building the test suite with my passes before the baseline guarantees that my comparison of results are computed correctly, given the same set of ```.test``` files.
 
-To avoid infinite running under LIT, I've used the ```--timeout``` CLI option to set a maximum time of execution of 120 seconds.
+To prevent LIT from entering an infinite loop, I've used the ```--timeout``` CLI option to set a maximum time of execution of 120 seconds.
 
 ```bash
 $ llvm-lit -s --timeout 120 -v -o ~/lit-results/results_baseline.json .
