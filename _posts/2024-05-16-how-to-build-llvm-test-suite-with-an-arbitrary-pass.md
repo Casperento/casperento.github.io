@@ -76,11 +76,11 @@ The following commit synthesizes all changes we've made in our patch, for you to
 
 [Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/ac2d88f53feff0057b60e15b65890ee12be496ae)
 
-#### Configuring and Building CMake project
+#### Configuring and Building CMake Project
 
 In our case, we want to count how many instructions programs have before applying our pass. Thus, we're going to build the project two times, one to get the baseline tests' results, and the second one to get our experiment tests' result.
 
-##### First running
+##### First Running
 
 Assuming your current directory is *"path/to/llvm-test-suite"*, run:
 
@@ -90,7 +90,7 @@ $ cd build
 $ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
 -DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= \
--DTEST_SUITE_RUN_BENCHMARKS=OFF -DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
+-DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
 -C ../cmake/caches/O1.cmake ..
 ```
@@ -112,7 +112,7 @@ $ mkdir -p ~/lit-results
 $ llvm-lit -v -o ~/lit-results/results_instcount.json .
 ```
 
-##### Second running
+##### Second Running
 
 The chosen pass' name must be specified by the **TEST_SUITE_SELECTED_PASSES** CMake env. variable. If you need to run a sequence of passes, just write them in the desired order separated by a comma, like:
 
@@ -124,7 +124,7 @@ Then, to compile the test suite again with the chosen pass, reconfigure the CMak
 $ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
 -DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES=func-merging \
--DTEST_SUITE_RUN_BENCHMARKS=OFF -DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
+-DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
 -C ../cmake/caches/O1.cmake ..
 ```
@@ -161,6 +161,66 @@ Our objective is to compile the Test Suite using different LLVM passes for metri
 
 By analyzing the differences in instruction counts between the baseline (using **instcount**) and the experimental setup (with **func-merging**), we can draw conclusions on the effectiveness of the **func-merging** pass for code compression within the LLVM framework.
 
+---
+
+## Extra
+
+There are some tweaks we can do when configuring the CMake project. For instance, we can select specific test suites to be compiled and run by LIT. Moreover, it is possible to skip targets that failed the CMake build process. Finally, it is possible to configure a shell script to automate the process of running and comparing experiments.
+
+### Build Specific Test Suites
+
+Let's say we want to compile only the _SingleSource_ and _MultiSource_ test suites. To do that, we need to specify them using the following CMake variable:
+
+> -DTEST_SUITE_SUBDIRS=semicolon;separated
+
+This way, we get the following CMake command to configure our baseline build:
+
+```bash
+$ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+-DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
+-DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= \
+-DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
+-DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
+-C ../cmake/caches/O1.cmake .. \
+"-DTEST_SUITE_SUBDIRS=SingleSource;MultiSource"
+```
+
+### How to Skip Failed Targets
+
+When building the CMake project, there may have some build targets that fail the compilation process at some step. Skipping these targets in the build process is interesting when you want to know what is the maximum number of targets you can build with your pass.
+
+To do that, first you need to know which build system you're using. When using **ninja-build**, you can specify the _-k_ option to skip all failed tests [4]. Once you know the correct CLI options that enables you to keep building the CMake project, you can append them into the build command using the ```--``` chars:
+
+```bash
+$ cmake --build . -- -k 0
+```
+
+### Running and Comparing Experiments Automatically
+
+I had three passes to test and collect code size metrics. These are **func-merging**, **loop-rolling** and **brfusion**. Basically, if I want to collect those metrics, I just rebuild the test suite over and over. But there may have some build targets that failed, tests that doesn't pass when they are compiled with different passes or tests that doesn't terminate under LIT.
+
+To tackle these problems, my current approach is to ignore all files that are associated with failed tests and run the experiments in a chosen order.
+
+Building the test suite with my passes before the baseline guarantee that my comparison of results are computed correctly, given the same set of ```.test``` files.
+
+To avoid infinite running under LIT, I've used the ```--timeout``` CLI option to set a maximum time of execution of 120 seconds.
+
+```bash
+$ llvm-lit -s --timeout 120 -v -o ~/lit-results/results_baseline.json .
+```
+
+Here is the PoC of my approach: [https://is.gd/Ezd8nv](https://is.gd/Ezd8nv).
+
+---
+
+## Errata
+
+It was assumed in the CMake commands that the tests should not be really run by LIT, but instead they were being used to collect only code size metrics, compromising the correctness of each test. Hence, to fix that, I've removed the following CMake variable from the commands:
+
+> -DTEST_SUITE_RUN_BENCHMARKS=OFF
+
+---
+
 ## References
 
 [1] https://discourse.llvm.org/t/how-to-use-llvm-test-suite-to-experiment-with-alias-analysis/69668/10
@@ -168,3 +228,5 @@ By analyzing the differences in instruction counts between the baseline (using *
 [2] https://releases.llvm.org/17.0.1/docs/TestSuiteGuide.html
 
 [3] https://releases.llvm.org/17.0.1/docs/CommandGuide/lit.html
+
+[4] https://manpages.debian.org/bullseye/ninja-build/ninja.1.en.html
