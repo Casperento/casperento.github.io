@@ -209,6 +209,8 @@ To avoid infinite running under LIT, I've used the ```--timeout``` CLI option to
 $ llvm-lit -s --timeout 120 -v -o ~/lit-results/results_baseline.json .
 ```
 
+**Note**: to use this feature, you need to install the ```psutil``` python package.
+
 Here is the PoC of my approach: [https://is.gd/Ezd8nv](https://is.gd/Ezd8nv).
 
 ---
