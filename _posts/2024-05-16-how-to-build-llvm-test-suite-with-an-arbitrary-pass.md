@@ -74,7 +74,7 @@ To build the project, we need to apply our patch into the CMake files. Then, we'
 
 The following commit synthesizes all changes we've made in our patch, for you to apply it locally:
 
-[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/42f4c4b7fe8c3237ecf3d76f46a4e9ab5b190cff){:target="_blank"}
+[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/1886ef6fbcf67c8e0007d4f05aa71ce31758b428){:target="_blank"}
 
 #### Configuring and Building CMake Project
 
@@ -89,7 +89,7 @@ $ mkdir -p build
 $ cd build
 $ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
--DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= \
+-DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= -DTEST_SUITE_PASSES_ARGS= \
 -DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
 -C ../cmake/caches/O1.cmake ..
@@ -118,12 +118,18 @@ The chosen pass' name must be specified by the **TEST_SUITE_SELECTED_PASSES** CM
 
 > -DTEST_SUITE_SELECTED_PASSES=pass-1,pass-2
 
+It is also possible to pass arguments related to your pass using the following CMake env. variable:
+
+> -DTEST_SUITE_PASSES_ARGS=-brfusion-soa=false\;-brfusion-threshold=0
+
+**Note**: each option must be separated by the escaped semicolon character ```\;```.
+
 Then, to compile the test suite again with the chosen pass, reconfigure the CMake project with the following command:
 
 ```bash
 $ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
--DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES=func-merging \
+-DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES=func-merging -DTEST_SUITE_PASSES_ARGS= \
 -DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
 -C ../cmake/caches/O1.cmake ..
@@ -178,7 +184,7 @@ This way, we get the following CMake command to configure our baseline build:
 ```bash
 $ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
--DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= \
+-DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= -DTEST_SUITE_PASSES_ARGS= \
 -DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
 -C ../cmake/caches/O1.cmake .. \
