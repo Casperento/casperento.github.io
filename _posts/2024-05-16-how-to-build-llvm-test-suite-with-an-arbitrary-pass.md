@@ -8,9 +8,9 @@ tags:
 - open-source
 date: 2024-05-16 00:00 +0000
 ---
-Recently, I embarked on my journey in compiler design by joining [UFMG's Compilers Lab](https://lac-dcc.github.io/) as a graduate researcher.
+Recently, I embarked on my journey in compiler design by joining [UFMG's Compilers Lab](https://lac-dcc.github.io/){:target="_blank"} as a graduate researcher.
 
-My first challenge was to become familiar with LLVM and learn how to develop a pass for it. However, that's not all, as we are also working with code compression techniques and require an infrastructure to test our developed passes. Fortunately, the [LLVM Test Suite](https://github.com/llvm/llvm-test-suite) is available to us.
+My first challenge was to become familiar with LLVM and learn how to develop a pass for it. However, that's not all, as we are also working with code compression techniques and require an infrastructure to test our developed passes. Fortunately, the [LLVM Test Suite](https://github.com/llvm/llvm-test-suite){:target="_blank"} is available to us.
 
 We are using LLVM 17 and its test suite. However, we discovered that compiling the entire project with a newly created pass is not a trivial task, since there are no intermediate steps in the CMake project for us to specify our new pass in the compilation pipeline. Therefore, we began researching new ways to compile the entire project with our new pass.
 
@@ -33,7 +33,7 @@ collection of bytecodes be called "Test";
 4. Collect metrics from "Test";
 5. Produce a report comparing metrics from "Control" and "Test".
 
-As an example, assume that we want to test the [func-merging](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354)
+As an example, assume that we want to test the [func-merging](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354){:target="_blank"}
 pass. This pass takes functions that are structurally equal and merge
 them to reduce code size. Imagine that we want to measure the
 code-size reduction enabled by this optimization. LLVM provides a pass
@@ -74,7 +74,7 @@ To build the project, we need to apply our patch into the CMake files. Then, we'
 
 The following commit synthesizes all changes we've made in our patch, for you to apply it locally:
 
-[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/ac2d88f53feff0057b60e15b65890ee12be496ae)
+[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/42f4c4b7fe8c3237ecf3d76f46a4e9ab5b190cff){:target="_blank"}
 
 #### Configuring and Building CMake Project
 
@@ -153,7 +153,7 @@ Assuming your current directory is *"path/to/llvm-test-suite/build"*.
 $ python3 ../utils/compare.py --full --diff -m instcount -m size..text ~/lit-results/results_instcount.json ~/lit-results/results_func-merging.json > ~/lit-results/test-results.txt
 ```
 
-[Comparison Result](https://gist.github.com/Casperento/debc184fb978231015e3e39765307040)
+[Comparison Result](https://gist.github.com/Casperento/debc184fb978231015e3e39765307040){:target="_blank"}
 
 ## Conclusion
 
@@ -197,7 +197,7 @@ $ cmake --build . -- -k 0
 
 ### Running and Comparing Experiments Automatically
 
-I had three passes to test and collect code size metrics. These are [func-merging](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-883188285e4fa4d291d33f72aec6ac43acb685f6844c4a9c4e34ae2523268ed4), [loop-rolling](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-e45e1412a61406b2aaaa1b2daf065500b8e95f6c08aec97a64f80b8351652640) and [brfusion](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-f72b25ed9b88723fe206a157fc8b7441447c8747c754c13bf605ba7347768389). Basically, if I want to collect those metrics, I just rebuild the test suite over and over. But there may have some build targets that failed, tests that don't pass when they are compiled with different passes or tests that don't terminate under LIT.
+I had three passes to test and collect code size metrics. These are [func-merging](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-883188285e4fa4d291d33f72aec6ac43acb685f6844c4a9c4e34ae2523268ed4){:target="_blank"}, [loop-rolling](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-e45e1412a61406b2aaaa1b2daf065500b8e95f6c08aec97a64f80b8351652640){:target="_blank"} and [brfusion](https://github.com/rcorcs/llvm-project/commit/246386f55764c35901099ca03b6fda4e20d36354#diff-f72b25ed9b88723fe206a157fc8b7441447c8747c754c13bf605ba7347768389){:target="_blank"}. Basically, if I want to collect those metrics, I just rebuild the test suite over and over. But there may have some build targets that failed, tests that don't pass when they are compiled with different passes or tests that don't terminate under LIT.
 
 To tackle these problems, my current approach is to ignore all files that are associated with failed tests and run the experiments in a chosen order.
 
@@ -211,7 +211,7 @@ $ llvm-lit -s --timeout 120 -v -o ~/lit-results/results_baseline.json .
 
 **Note**: to use this feature, you need to install the ```psutil``` python package.
 
-Here is the PoC of my approach: [https://is.gd/Ezd8nv](https://is.gd/Ezd8nv).
+Here is the PoC of my approach: [https://is.gd/Ezd8nv](https://is.gd/Ezd8nv){:target="_blank"}.
 
 ---
 
@@ -225,10 +225,10 @@ It was assumed in the CMake commands that the tests should not be really run by 
 
 ## References
 
-[1] https://discourse.llvm.org/t/how-to-use-llvm-test-suite-to-experiment-with-alias-analysis/69668/10
+[1] [https://discourse.llvm.org/t/how-to-use-llvm-test-suite-to-experiment-with-alias-analysis/69668/10](https://discourse.llvm.org/t/how-to-use-llvm-test-suite-to-experiment-with-alias-analysis/69668/10){:target="_blank"}
 
-[2] https://releases.llvm.org/17.0.1/docs/TestSuiteGuide.html
+[2] [https://releases.llvm.org/17.0.1/docs/TestSuiteGuide.html](https://releases.llvm.org/17.0.1/docs/TestSuiteGuide.html){:target="_blank"}
 
-[3] https://releases.llvm.org/17.0.1/docs/CommandGuide/lit.html
+[3] [https://releases.llvm.org/17.0.1/docs/CommandGuide/lit.html](https://releases.llvm.org/17.0.1/docs/CommandGuide/lit.html){:target="_blank"}
 
-[4] https://manpages.debian.org/bullseye/ninja-build/ninja.1.en.html
+[4] [https://manpages.debian.org/bullseye/ninja-build/ninja.1.en.html](https://manpages.debian.org/bullseye/ninja-build/ninja.1.en.html){:target="_blank"}
