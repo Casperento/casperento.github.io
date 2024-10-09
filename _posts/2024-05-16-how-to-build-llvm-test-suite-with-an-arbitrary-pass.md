@@ -74,7 +74,7 @@ To build the project, we need to apply our patch into the CMake files. Then, we'
 
 The following commit synthesizes all changes we've made in our patch, for you to apply it locally:
 
-[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/1886ef6fbcf67c8e0007d4f05aa71ce31758b428){:target="_blank"}
+[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/2c538ccd8c513e0850d7fa5192e162143ac2ea77){:target="_blank"}
 
 #### Configuring and Building CMake Project
 
