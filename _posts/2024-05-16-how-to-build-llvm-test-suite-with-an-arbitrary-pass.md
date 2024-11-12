@@ -74,7 +74,7 @@ To build the project, we need to apply our patch into the CMake files. Then, we'
 
 The following commit synthesizes all changes we've made in our patch, for you to apply it locally:
 
-[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/2c538ccd8c513e0850d7fa5192e162143ac2ea77){:target="_blank"}
+[Patch's commit](https://github.com/Casperento/llvm-test-suite/commit/967813878b1e69d0b7892c08ef227baa789d7083){:target="_blank"}
 
 #### Configuring and Building CMake Project
 
@@ -87,11 +87,16 @@ Assuming your current directory is *"path/to/llvm-test-suite"*, run:
 ```bash
 $ mkdir -p build
 $ cd build
-$ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
--DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
--DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= -DTEST_SUITE_PASSES_ARGS= \
--DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
+$ cmake -G "Ninja" \
+-DCMAKE_C_COMPILER=clang \
+-DCMAKE_CXX_COMPILER=clang++ \
+-DCMAKE_C_FLAGS="-flto" \
+-DCMAKE_CXX_FLAGS="-flto" \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
+-DTEST_SUITE_ARBITRARY_PASS=ON \
+-DTEST_SUITE_SELECTED_PASSES= \
+-DTEST_SUITE_PASSES_ARGS= \
+"-DTEST_SUITE_SUBDIRS=SingleSource;MultiSource" \
 -C ../cmake/caches/O1.cmake ..
 ```
 
@@ -109,7 +114,7 @@ To run the tests with LIT, create a separate folder for the results and run it:
 
 ```bash
 $ mkdir -p ~/lit-results
-$ llvm-lit -v -o ~/lit-results/results_instcount.json .
+$ llvm-lit -v -o ~/lit-results/results_baseline.json .
 ```
 
 ##### Second Running
@@ -127,11 +132,16 @@ It is also possible to pass arguments related to your pass using the following C
 Then, to compile the test suite again with the chosen pass, reconfigure the CMake project with the following command:
 
 ```bash
-$ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
--DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
--DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES=func-merging -DTEST_SUITE_PASSES_ARGS= \
--DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
+$ cmake -G "Ninja" \
+-DCMAKE_C_COMPILER=clang \
+-DCMAKE_CXX_COMPILER=clang++ \
+-DCMAKE_C_FLAGS="-flto" \
+-DCMAKE_CXX_FLAGS="-flto" \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
+-DTEST_SUITE_ARBITRARY_PASS=ON \
+-DTEST_SUITE_SELECTED_PASSES=func-merging \
+-DTEST_SUITE_PASSES_ARGS= \
+"-DTEST_SUITE_SUBDIRS=SingleSource;MultiSource" \
 -C ../cmake/caches/O1.cmake ..
 ```
 
@@ -156,7 +166,7 @@ To compare the results by **instcount** and **size..text** metrics, run the foll
 Assuming your current directory is *"path/to/llvm-test-suite/build"*.
 
 ```bash
-$ python3 ../utils/compare.py --full --diff -m instcount -m size..text ~/lit-results/results_instcount.json ~/lit-results/results_func-merging.json > ~/lit-results/test-results.txt
+$ python3 ../utils/compare.py --full --diff -m instcount -m size..text ~/lit-results/results_baseline.json ~/lit-results/results_func-merging.json > ~/lit-results/test-results.txt
 ```
 
 [Comparison Result](https://gist.github.com/Casperento/debc184fb978231015e3e39765307040){:target="_blank"}
@@ -182,13 +192,17 @@ Let's say we want to compile only the _SingleSource_ and _MultiSource_ test suit
 This way, we get the following CMake command to configure our baseline build:
 
 ```bash
-$ cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
--DCMAKE_C_FLAGS="-flto" -DCMAKE_CXX_FLAGS="-flto" \
--DTEST_SUITE_COLLECT_INSTCOUNT=ON -DTEST_SUITE_SELECTED_PASSES= -DTEST_SUITE_PASSES_ARGS= \
--DTEST_SUITE_COLLECT_COMPILE_TIME=OFF \
+$ cmake -G "Ninja" \
+-DCMAKE_C_COMPILER=clang \
+-DCMAKE_CXX_COMPILER=clang++ \
+-DCMAKE_C_FLAGS="-flto" \
+-DCMAKE_CXX_FLAGS="-flto" \
 -DCMAKE_EXE_LINKER_FLAGS="-flto -fuse-ld=lld -Wl,--plugin-opt=-lto-embed-bitcode=post-merge-pre-opt" \
--C ../cmake/caches/O1.cmake .. \
-"-DTEST_SUITE_SUBDIRS=SingleSource;MultiSource"
+-DTEST_SUITE_ARBITRARY_PASS=ON \
+-DTEST_SUITE_SELECTED_PASSES= \
+-DTEST_SUITE_PASSES_ARGS= \
+"-DTEST_SUITE_SUBDIRS=SingleSource;MultiSource" \
+-C ../cmake/caches/O1.cmake ..
 ```
 
 ### How to Skip Failed Targets
