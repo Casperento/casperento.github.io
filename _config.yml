@@ -19,7 +19,7 @@ title: Casperento # the main title
 tagline: Compilers Researcher # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  A blog about Compilers and other topics related to Computer Science.
+  A blog about Compilers and other Computer Science related topics.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: "https://casperento.github.io"
