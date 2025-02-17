@@ -14,6 +14,8 @@ My first challenge was to become familiar with LLVM and learn how to develop a p
 
 We are using LLVM 17 and its test suite. However, we discovered that compiling the entire project with a newly created pass is not a trivial task, since there are no intermediate steps in the CMake project for us to specify our new pass in the compilation pipeline. Therefore, we began researching new ways to compile the entire project with our new pass.
 
+**Note**: I cover this topic in an introductory LLVM course produced by our lab. You can also check out these videos to better understand the idea behind this post: [Part 1](https://www.youtube.com/watch?v=Xy36aW5sY-Y) and [Part 2](https://www.youtube.com/watch?v=azv8KN1I6QQ).
+
 ## Introduction
 
 Perhaps one of the nicest parts of the LLVM project is the Test Suite. This is a large collection of C and C++ benchmarks that compiler engineers can use to test the techniques that they implement. The suite includes a diverse array of programs and libraries, ranging from small, single-file programs to large, complex applications, ensuring comprehensive coverage of real-world scenarios.
