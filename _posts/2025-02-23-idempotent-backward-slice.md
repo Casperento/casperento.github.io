@@ -5,6 +5,7 @@ categories:
 - Compilers
 tags:
 - compilers
+date: 2025-02-23 19:56 -0300
 ---
 Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *program slice* [X], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
 
