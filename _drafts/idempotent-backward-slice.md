@@ -6,7 +6,7 @@ categories:
 tags:
 - compilers
 ---
-Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *slice* [X], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
+Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *program slice* [X], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
 
 Following the problem statement, we provide some definitions to contextualize our discussion. Then, we present an algorithm to show how we compute idempotent slices backwardly. Finally, we conclude this study in the respective section.
 
@@ -14,39 +14,74 @@ Following the problem statement, we provide some definitions to contextualize ou
 
 ## Problem Statement
 
-Given a *slice criterion*, the goal is to compute all data and control dependencies backwardly in the CFG of a program. A slice criterion typically consists of a specific program point and a set of variables of interest at that point. 
+Given a *slice criterion*, the goal is to compute all data and control dependencies backwardly in the CFG of a program. A slice criterion typically consists of a specific program point and a set of variables of interest at that point.
 
-By analyzing the program's CFG, we can identify all instructions that directly or indirectly affect the values of these variables at the given program point. This involves tracing both data dependencies, which capture how data values are propagated through the program, and control dependencies, which capture how the execution flow of the program is influenced by conditional statements. 
+By analyzing the program's CFG, we can identify all instructions that directly or indirectly affect the values of these variables at the given program point. This involves tracing both data dependencies, which capture how data values are propagated through the program, and control dependencies, which capture how the execution flow of the program is influenced by conditional statements.
 
 The result is a backward slice, a subset of the program that includes only the relevant instructions needed to understand the behavior of the variables at the specified program point. Additionally, the new slice must be idempotent, meaning that given the same input, the program must consistently return the same value.
 
-## Definitions
+## Formal Definitions
 
-In this section, we introduce several key concepts and definitions that are essential for understanding idempotent backward slicing. These definitions will provide the necessary background to follow the algorithm and its application in computing program slices. By familiarizing ourselves with these terms, we can better grasp the intricacies of slicing and its role in program analysis.
+### Control Flow Graph
+A program is represented as a **control flow graph (CFG)**:
 
-**Definition 1**: a ***program slice*** is all parts of a program that have direct or indirect effect on the values computed at a *slicing criterion*.
+- A **digraph** \( G = (N, E) \) consists of:
+  - \( N \): Set of program statements (nodes).
+  - \( E \): Directed edges representing control flow between statements.
+- A **flowgraph** \( (N, E, n_0) \) is a digraph where \( n_0 \) is the entry node, and every node is reachable from \( n_0 \).
+- A **hammock graph** \( (N, E, n_0, n_e) \) is a flowgraph with a unique exit node \( n_e \).
+- **Dominance**: A node \( m \) **dominates** \( n \) if every path from \( n_0 \) to \( n \) passes through \( m \).
+- **Inverse Dominance**: \( m \) **inverse dominates** \( n \) if every path from \( n \) to \( n_e \) passes through \( m \).
 
-**Definition 2**: a ***slicing criterion*** is a pair (program point, set of variables).
+### Program Variables
+Let \( V \) be the set of variables in a program \( P \). For each statement \( n \):
 
-**Definition 3**: a ***program dependence graph (PDG)*** is a directed graph with vertices corresponding to statements and control predicates, and edges corresponding to data and control dependencies [Y].
+- \( \text{REF}(n) \): Set of variables **used** at \( n \).
+- \( \text{DEF}(n) \): Set of variables **modified** at \( n \).
 
-Ottenstein and Ottenstein [Z] proposed PDGs to compute program slices in terms of graph reachability: a vertex identifies a slicing criterion, and a slice corresponds to all PDG vertices from which the vertex under consideration can be reached. 
+### State Trajectory
+A **state trajectory** of length \( k \) is a sequence:
+\[ (n_1, s_1), (n_2, s_2), ..., (n_k, s_k) \]
+where each \( n_i \) is a statement and each \( s_i \) is a mapping of variables to values.
 
-**Definition 4**: a ***backward slice*** requires a *backward* traversal of the program's CFG, starting from the slicing criterion, to compute the conventional program slices.
+### Slicing Criterion
+A **slicing criterion** \( C = (i, V) \) specifies:
 
-**Definition 5**: a ***Control Flow Graph*** (CFG) is a graph where nodes are basic blocks, edges possible paths of execution, and they come with a START and STOP basic block to indicate that the program started and finished, respectively.
+- \( i \): A statement index where slicing occurs.
+- \( V \): A subset of variables observed at \( i \).
 
-**Definition 6**: a node *i* in a graph is ***post-dominated*** by a node *j*, if all paths from *i* to STOP pass through *j*.
+### Projection Function
+A projection function extracts only relevant information from a state trajectory:
+\[ \text{Proj}_{(i,V)}(n, s) = \begin{cases} (n, s|_V), & \text{if } n = i \\ X, & \text{otherwise} \end{cases} \]
+where \( s|_V \) restricts \( s \) to the variables in \( V \).
 
-**Definition 7**: a slice is **_statement-minimal_** if no other slice for the same criterion contains fewer statements. They are not necessarily unique and the problem of determining statement-minimal slices is undecidable [X].
+For a trajectory \( T \), we apply:
+\[ \text{Proj}_{(i,V)}(T) = \text{Proj}_{(i,V)}(t_1) ... \text{Proj}_{(i,V)}(t_n). \]
 
-**Definition 8**: an ***idempotent backward slice*** is a backward slice that, when executed with the same input, consistently produces the same output. This ensures that the slice is repeatable and reliable, applying the property of idempotence to program execution [Q].
+### Definition of a Slice
+A **slice** \( S \) of a program \( P \) satisfies:
+1. \( S \) is obtained by deleting zero or more statements from \( P \).
+2. \( S \) produces the same projection as \( P \) for all inputs where \( P \) terminates.
 
 ## Algorithm
 
-Although Weiser [X] proofs that there is no algorithm to compute statement-minimal slices, it's possible to use data flow analysis to approximate program slices computation.
+Although Weiser [X] proofs that there is no algorithm to compute statement-minimal slices, it is possible to use data and control flow analysis to approximate the computation of program slices.
 
-TODO.
+### Step 1: Compute Directly Relevant Variables
+Define \( R_C(n) \), the set of **relevant variables** at statement \( n \):
+\[ R_C(n) = \begin{cases} V, & \text{if } n = i \\ \{ v | v \in \text{REF}(n) \text{ and } w \in \text{DEF}(n) \cap R_C(m) \}, & \text{if } m \text{ is a successor of } n \end{cases} \]
+
+This ensures that variables affecting \( V \) at \( i \) are traced back through the program.
+
+### Step 2: Identify Control Dependencies
+A statement \( b \) influences a statement \( s \) if it controls whether \( s \) executes. Define **INFL** as:
+\[ \text{INFL}(b) = \{ n | n \text{ is on a path from } b \text{ to its nearest inverse dominator} \}. \]
+
+All statements affecting any \( n \in S_C \) are included in the slice.
+
+### Step 3: Construct the Slice
+The final slice \( S_C \) consists of all statements where:
+\[ R_C(n+1) \cap \text{DEF}(n) \neq \emptyset. \]
 
 ## Conclusion
 
