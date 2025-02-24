@@ -7,7 +7,7 @@ tags:
 - compilers
 date: 2025-02-23 19:56 -0300
 ---
-Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *program slice* [X], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
+Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *program slice* [3], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
 
 Following the problem statement, we provide some definitions to contextualize our discussion. Then, we present an algorithm to show how we compute idempotent slices backwardly. Finally, we conclude this study in the respective section.
 
@@ -19,7 +19,7 @@ Given a *slice criterion*, the goal is to compute all data and control dependenc
 
 By analyzing the program's CFG, we can identify all instructions that directly or indirectly affect the values of these variables at the given program point. This involves tracing both data dependencies, which capture how data values are propagated through the program, and control dependencies, which capture how the execution flow of the program is influenced by conditional statements.
 
-The result is a backward slice, a subset of the program that includes only the relevant instructions needed to understand the behavior of the variables at the specified program point. Additionally, the new slice must be idempotent, meaning that given the same input, the program must consistently return the same value.
+The result is a backward slice, a subset of the program that includes only the relevant instructions needed to understand the behavior of the variables at the specified program point. Additionally, the new slice must be idempotent [1], meaning that given the same input, the program must consistently return the same value.
 
 ## Formal Definitions
 
@@ -66,7 +66,7 @@ A **slice** \( S \) of a program \( P \) satisfies:
 
 ## Algorithm
 
-Although Weiser [X] proofs that there is no algorithm to compute statement-minimal slices, it is possible to use data and control flow analysis to approximate the computation of program slices.
+Although Weiser [3] proofs that there is no algorithm to compute statement-minimal slices, it is possible to use data and control flow analysis to approximate the computation of program slices.
 
 ### Step 1: Compute Directly Relevant Variables
 Define \( R_C(n) \), the set of **relevant variables** at statement \( n \):
@@ -96,10 +96,8 @@ We encourage readers to refer to the provided references for a deeper understand
 
 ## References
 
-[Q] Rosen, Kenneth H., and Kamala Krithivasan. Discrete Mathematics and Its Applications. 7. ed., Global ed, McGraw-Hill, 2013.
+[1] Rosen, Kenneth H., and Kamala Krithivasan. *Discrete Mathematics and Its Applications*. 7. ed., Global ed, McGraw-Hill, 2013.
 
-[Y] Tip, Frank. *A Survey of Program Slicing Techniques*. CWI (Centre for Mathematics and Computer Science), NLD. 1994.
+[2] Tip, Frank. *A Survey of Program Slicing Techniques*. CWI (Centre for Mathematics and Computer Science), NLD. 1994.
 
-[Z] Ottenstein, K.J. and Ottenstein, L.M. *The program dependence graph in a software development environment*. In Proceedings of the ACM SIGSOFT/SIGPLAN Software Engineering Symposium on Practical Software Development Environments, pages 177–184. 1984.
-
-[X] Weiser, Mark. *Program Slicing*. IEEE Transactions on Software Engineering, vol. SE-10, no. 4, pp. 352–57. 1984.
+[3] Weiser, Mark. *Program Slicing*. IEEE Transactions on Software Engineering, vol. SE-10, no. 4, pp. 352–57. 1984.
