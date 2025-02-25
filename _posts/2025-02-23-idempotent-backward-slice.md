@@ -6,6 +6,7 @@ categories:
 tags:
 - compilers
 date: 2025-02-23 19:56 -0300
+math: true
 ---
 Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *program slice* [3], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
 
@@ -26,63 +27,76 @@ The result is a backward slice, a subset of the program that includes only the r
 ### Control Flow Graph
 A program is represented as a **control flow graph (CFG)**:
 
-- A **digraph** \( G = (N, E) \) consists of:
-  - \( N \): Set of program statements (nodes).
-  - \( E \): Directed edges representing control flow between statements.
-- A **flowgraph** \( (N, E, n_0) \) is a digraph where \( n_0 \) is the entry node, and every node is reachable from \( n_0 \).
-- A **hammock graph** \( (N, E, n_0, n_e) \) is a flowgraph with a unique exit node \( n_e \).
-- **Dominance**: A node \( m \) **dominates** \( n \) if every path from \( n_0 \) to \( n \) passes through \( m \).
-- **Inverse Dominance**: \( m \) **inverse dominates** \( n \) if every path from \( n \) to \( n_e \) passes through \( m \).
+- A **digraph** $$ G = (N, E) $$ consists of:
+  - $$ N $$: set of program statements (nodes).
+  - $$ E $$: directed edges representing control flow between statements.
+- A **flowgraph** $$ (N, E, n_0) $$ is a digraph where $$ n_0 $$ is the entry node, and every node is reachable from $$ n_0 $$.
+- A **hammock graph** $$ (N, E, n_0, n_e) $$ is a flowgraph with a unique exit node $$ n_e $$.
+- **Dominance**: a node $$ m $$ **dominates** $$ n $$ if every path from $$ n_0 $$ to $$ n $$ passes through $$ m $$.
+- **Post Dominance**: $$ m $$ **post dominates** $$ n $$ if every path from $$ n $$ to $$ n_e $$ passes through $$ m $$.
 
 ### Program Variables
-Let \( V \) be the set of variables in a program \( P \). For each statement \( n \):
+Let $$ V $$ be the set of variables in a program $$ P $$. For each statement $$ n $$:
 
-- \( \text{REF}(n) \): Set of variables **used** at \( n \).
-- \( \text{DEF}(n) \): Set of variables **modified** at \( n \).
+- $$ \text{REF}(n) $$: set of variables **used** at $$ n $$.
+- $$ \text{DEF}(n) $$: set of variables **modified** at $$ n $$.
 
 ### State Trajectory
-A **state trajectory** of length \( k \) is a sequence:
-\[ (n_1, s_1), (n_2, s_2), ..., (n_k, s_k) \]
-where each \( n_i \) is a statement and each \( s_i \) is a mapping of variables to values.
+A **state trajectory** of length $$ k $$ is a sequence:
+$$
+(n_1, s_1), (n_2, s_2), ..., (n_k, s_k)
+$$
+where each $$ n_i $$ is a statement and each $$ s_i $$ is a mapping of variables to values.
 
 ### Slicing Criterion
-A **slicing criterion** \( C = (i, V) \) specifies:
+A **slicing criterion** $$ C = (i, V) $$ specifies:
 
-- \( i \): A statement index where slicing occurs.
-- \( V \): A subset of variables observed at \( i \).
+- $$ i $$: a statement index where slicing occurs.
+- $$ V $$: a subset of variables observed at $$ i $$.
 
 ### Projection Function
 A projection function extracts only relevant information from a state trajectory:
-\[ \text{Proj}_{(i,V)}(n, s) = \begin{cases} (n, s|_V), & \text{if } n = i \\ X, & \text{otherwise} \end{cases} \]
-where \( s|_V \) restricts \( s \) to the variables in \( V \).
+$$
+\text{Proj}_{(i,V)}(n, s) = \begin{cases} (n, s \mid V), & \text{if } n = i \\ X, & \text{otherwise} \end{cases}
+$$
 
-For a trajectory \( T \), we apply:
-\[ \text{Proj}_{(i,V)}(T) = \text{Proj}_{(i,V)}(t_1) ... \text{Proj}_{(i,V)}(t_n). \]
+where $$ s \mid V $$ restricts $$ s $$ to the variables in $$ V $$.
+
+For a trajectory $$ T $$, we apply:
+$$
+\text{Proj}_{(i,V)}(T) = \text{Proj}_{(i,V)}(t_1) ... \text{Proj}_{(i,V)}(t_n).
+$$
 
 ### Definition of a Slice
-A **slice** \( S \) of a program \( P \) satisfies:
-1. \( S \) is obtained by deleting zero or more statements from \( P \).
-2. \( S \) produces the same projection as \( P \) for all inputs where \( P \) terminates.
+A **slice** $$ S $$ of a program $$ P $$ satisfies:
+1. $$ S $$ is obtained by deleting zero or more statements from $$ P $$.
+2. $$ S $$ produces the same projection as $$ P $$ for all inputs where $$ P $$ terminates.
 
 ## Algorithm
 
 Although Weiser [3] proofs that there is no algorithm to compute statement-minimal slices, it is possible to use data and control flow analysis to approximate the computation of program slices.
 
 ### Step 1: Compute Directly Relevant Variables
-Define \( R_C(n) \), the set of **relevant variables** at statement \( n \):
-\[ R_C(n) = \begin{cases} V, & \text{if } n = i \\ \{ v | v \in \text{REF}(n) \text{ and } w \in \text{DEF}(n) \cap R_C(m) \}, & \text{if } m \text{ is a successor of } n \end{cases} \]
+Define $$ R_C(n) $$, the set of **relevant variables** at statement $$ n $$:
+$$
+R_C(n) = \begin{cases} V, & \text{if } n = i \\ \{ v \mid v \in \text{REF}(n) \text{ and } w \in \text{DEF}(n) \cap R_C(m) \}, & \text{if } m \text{ is a successor of } n \end{cases}
+$$
 
-This ensures that variables affecting \( V \) at \( i \) are traced back through the program.
+This ensures that variables affecting $$ V $$ at $$ i $$ are traced back through the program.
 
 ### Step 2: Identify Control Dependencies
-A statement \( b \) influences a statement \( s \) if it controls whether \( s \) executes. Define **INFL** as:
-\[ \text{INFL}(b) = \{ n | n \text{ is on a path from } b \text{ to its nearest inverse dominator} \}. \]
+A statement $$ b $$ influences a statement $$ s $$ if it controls whether $$ s $$ executes. Define **INFL** as:
+$$
+\text{INFL}(b) = \{ n \mid n \text{ is on a path from } b \text{ to its nearest post dominator} \}.
+$$
 
-All statements affecting any \( n \in S_C \) are included in the slice.
+All statements affecting any $$ n \in S_C $$ are included in the slice.
 
 ### Step 3: Construct the Slice
-The final slice \( S_C \) consists of all statements where:
-\[ R_C(n+1) \cap \text{DEF}(n) \neq \emptyset. \]
+The final slice $$ S_C $$ consists of all statements where:
+$$
+R_C(n+1) \cap \text{DEF}(n) \neq \emptyset.
+$$
 
 ## Conclusion
 
