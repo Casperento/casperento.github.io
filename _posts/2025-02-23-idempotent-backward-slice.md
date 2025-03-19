@@ -14,6 +14,8 @@ Following the problem statement, we provide definitions to contextualize our dis
 
 **Note**: this post references a video I produced as part of a series on compiler research topics, available on the [Compilers Laboratory's YouTube channel](https://www.youtube.com/@compilerslab).
 
+---
+
 ## Problem Statement
 
 Given a *slice criterion*, the goal is to compute all data and control dependencies backwardly in the CFG of a program. A slice criterion typically consists of a specific program point and a set of variables of interest at that point.
@@ -21,6 +23,8 @@ Given a *slice criterion*, the goal is to compute all data and control dependenc
 By analyzing the program's CFG, we can identify all instructions that directly or indirectly affect the values of these variables at the given program point. This involves tracing both data dependencies, which capture how data values are propagated through the program, and control dependencies, which capture how the execution flow of the program is influenced by conditional statements.
 
 The result is a backward slice, a subset of the program that includes only the relevant instructions needed to understand the behavior of the variables at the specified program point. Additionally, the new slice must be idempotent [3], meaning that given the same input, the program must consistently return the same value.
+
+---
 
 ## Definitions
 
@@ -137,6 +141,8 @@ Dominance relationships between the nodes of a Control Flow Graph (CFG) are defi
 
 Knowing that the immediate dominator and the immediate post-dominator of any basic block in a CFG are unique [1], we define a dominance tree and a post-dominance tree.
 
+---
+
 ## Weiser's Algorithm
 
 Although Weiser [5] proofs that there is no algorithm to compute statement-minimal slices, it is possible to use data and control flow analysis to approximate the computation of program slices.
@@ -166,7 +172,9 @@ $$
 R_C(n+1) \cap \text{DEF}(n) \neq \emptyset.
 $$
 
-## Efficient Algorithm
+---
+
+## Efficient Algorithm for Sparse Slicing
 
 Weiser's algorithm performs a dense analysis of a program by associating information with pairs consisting of variables and program points. However, his approach to identifying data and control dependencies can be improved by utilizing more efficient data structures, rather than computing consecutive sets of transitively relevant statements [4]. To address this, we present an algorithm that computes program slices using a sparse analysis, which handles data and control dependencies more efficiently [2].
 
@@ -205,6 +213,19 @@ To compute data and control dependencies between variables, we use the **Program
 
 The program's Dominator Tree and Program Dependency Graph (PDG) are shown in Figures 2, and 3, respectively. These structures are used to compute an **idempotent backward slice** based on the slice criterion `use(b2)` (Figure 4). The resulting slice is shown in Figure 4(c).
 
+### Influence Region
+
+The **influence region** of a block $$ B $$ is the set of blocks dominated by $$ B $$ but not post-dominated by it. This region determines which variables are affected by a predicate.
+
+### Algorithm Overview
+
+1. **Input**: A program in SSA form, represented as a dominance tree.
+2. **Output**: A sparse slice containing only relevant instructions.
+3. **Steps**:
+   - Traverse the dominance tree to identify the influence region of each predicate.
+   - Link predicates to variables defined within their influence region.
+   - Use the PDG to compute transitive dependencies efficiently.
+
 ![Figure 2](/assets/img/posts/idempotent_backward_slices_post/program_dom_tree.png)  
 **Figure 2**: _The program's Dominator Tree._
 
@@ -217,6 +238,8 @@ The program's Dominator Tree and Program Dependency Graph (PDG) are shown in Fig
 The algorithm presented here improves upon Weiser's dense analysis by leveraging the **Single Information Property** and transforming the program into SSA form. This transformation allows us to perform a sparse analysis, significantly reducing the complexity of computing program slices from $$ \mathcal{O}(V^2) $$ to $$ \mathcal{O}(V) $$.
 
 By utilizing the Program Dependency Graph (PDG) and Dominator Tree, we efficiently compute both data and control dependencies, enabling precise and efficient slicing. The example demonstrates how the algorithm operates on a real program, showcasing its ability to compute an idempotent backward slice with improved performance and accuracy.
+
+---
 
 ## Conclusion
 
