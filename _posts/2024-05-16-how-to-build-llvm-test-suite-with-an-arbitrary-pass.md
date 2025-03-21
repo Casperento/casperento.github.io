@@ -233,7 +233,7 @@ $ llvm-lit -s --timeout 120 -v -o ~/lit-results/results_baseline.json .
 
 **Note**: to use this feature, you need to install the ```psutil``` python package.
 
-Here is the PoC of my approach: [https://is.gd/Ezd8nv](https://is.gd/Ezd8nv){:target="_blank"}.
+Here is the [link](https://gist.github.com/Casperento/fff7f3c77f6c3c470e17dc4edc04f13b){:target="_blank"} of the PoC of my approach.
 
 ---
 
