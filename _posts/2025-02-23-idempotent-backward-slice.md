@@ -8,7 +8,7 @@ tags:
 date: 2025-02-23 19:56 -0300
 math: true
 ---
-Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *program slice* [7], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
+Have you ever wondered what programmers ask themselves when they need to fix a bug in a program? They need to understand how the program's variables, functions, and data structures interact with each other. However, a program can be very large, and one doesn't need to cover all instructions to fix a specific issue. Therefore, they can limit the scope of the search by selecting just a subset of instructions used to compute a given value at a program point. This subset of instructions is called a *program slice* [8], and it is an executable program that, given an input value, will always produce an output at the end of its execution.
 
 Following the problem statement, we provide definitions to contextualize our discussion. Then, we present an algorithm to compute idempotent slices backwardly. Additionally, we demonstrate how to perform the same task more efficiently using programs in SSA form. Finally, we conclude this study in the corresponding section.
 
@@ -22,7 +22,7 @@ Given a *slice criterion*, the goal is to compute all data and control dependenc
 
 By analyzing the program's CFG, we can identify all instructions that directly or indirectly affect the values of these variables at the given program point. This involves tracing both data dependencies, which capture how data values are propagated through the program, and control dependencies, which capture how the execution flow of the program is influenced by conditional statements.
 
-The result is a backward slice, a subset of the program that includes only the relevant instructions needed to understand the behavior of the variables at the specified program point. Additionally, the new slice must be idempotent [5], meaning that given the same input, the program must consistently return the same value.
+The result is a backward slice, a subset of the program that includes only the relevant instructions needed to understand the behavior of the variables at the specified program point. Additionally, the new slice must be idempotent [6], meaning that given the same input, the program must consistently return the same value.
 
 ---
 
@@ -38,9 +38,9 @@ A program is represented as a **control flow graph (CFG)**:
   - $$ N $$: set of program statements (nodes).
   - $$ E $$: directed edges representing control flow between statements.
 - A [**control flow graph**](https://en.wikipedia.org/wiki/Control-flow_graph){:target="_blank"} $$ (N, E, n_0) $$ is a digraph where $$ n_0 $$ is the entry node.
-  - **Start**: n_0, or a special node that is reachable by every node, but no node reaches it [4].
-- A **hammock graph** $$ (N, E, n_0, n_e) $$ is a control flow graph with a unique exit node $$ n_e $$.
-  - **End**: $$ n_e $$, or a special node that is reachable by every node, but no node reaches it [4].
+  - **Start**: n_0, or a special node that is reachable by every node, but no node reaches it [5].
+- A **hammock graph** $$ (N, E, n_0, n_e) $$ [3] is a control flow graph with a unique exit node $$ n_e $$.
+  - **End**: $$ n_e $$, or a special node that is reachable by every node, but no node reaches it [5].
 
 ### Def-use Chain
 
@@ -86,11 +86,11 @@ A **slice** $$ S $$ of a program $$ P $$ satisfies:
 
 ### Dataflow Analysis
 
-In this analysis, we are interested on gathering information about what may happen in a program at run time, without running it [1]. This analysis will be a conservative approximation of its behaviour and flow sensitive. A **flow sensitive** analysis considers the order in which variables are defined and used in a program [4].
+In this analysis, we are interested on gathering information about what may happen in a program at run time, without running it [1]. This analysis will be a conservative approximation of its behaviour and flow sensitive. A **flow sensitive** analysis considers the order in which variables are defined and used in a program [5].
 
 ### Static Single-Assignment Form (SSA)
 
-The static single-assignment (SSA) form is a program representation in which each variable is assigned exactly once [2]. Therefore, the **Single Information Property** holds when the information associated with a variable $$ v $$ during dataflow analysis remains invariant at every program point where it is alive [3]. This property simplifies dataflow analysis and facilitates reasoning about the behavior of a program.
+The static single-assignment (SSA) form is a program representation in which each variable is assigned exactly once [2]. Therefore, the **Single Information Property** holds when the information associated with a variable $$ v $$ during dataflow analysis remains invariant at every program point where it is alive [4]. This property simplifies dataflow analysis and facilitates reasoning about the behavior of a program.
 
 In SSA form:
 
@@ -126,11 +126,11 @@ Here, the $$ \phi $$-function combines the values of `y1` and `y2` based on the 
 
 ### Program Dependency Graph
 
-Following [4], we define a program dependency graph (PDG) in the context of SSA form. A PDG is a directed graph $$ G = (V, E) $$, where $$ V $$ represents the set of vertices, with one vertex corresponding to each variable in the program. The set $$ E $$ consists of directed edges, where an edge $$ (u, v) \in E $$ exists if and only if $$ v $$ appears on the left-hand side of an instruction in which $$ u $$ appears on the right-hand side. An edge can be either solid or dotted: the former represents explicit dependencies, while the latter represents implicit dependencies.
+Following [3], we define a program dependency graph (PDG) in the context of SSA form. A PDG is a directed graph $$ G = (V, E) $$, where $$ V $$ represents the set of vertices, with one vertex corresponding to each variable in the program. The set $$ E $$ consists of directed edges, where an edge $$ (u, v) \in E $$ exists if and only if $$ v $$ appears on the left-hand side of an instruction in which $$ u $$ appears on the right-hand side. An edge can be either solid or dotted: the former represents explicit dependencies, while the latter represents implicit dependencies.
 
 ### Dominance
 
-Dominance relationships between the nodes of a Control Flow Graph (CFG) are defined below, following [4]:
+Dominance relationships between the nodes of a Control Flow Graph (CFG) are defined below, following [5]:
 
 - **Dominance**: A node $$ m $$ **dominates** $$ n $$ if every path from the **Start** node to $$ n $$ passes through $$ m $$.  
 - **Immediate Dominance**: A node $$ m $$ is the **immediate dominator** of $$ n $$ if $$ m $$ dominates $$ n $$, and for any other node $$ p $$ that also dominates $$ n $$, $$ p \neq m $$ implies that $$ m $$ dominates $$ p $$.  
@@ -145,7 +145,7 @@ Knowing that the immediate dominator and the immediate post-dominator of any bas
 
 ## Weiser's Algorithm
 
-Although Weiser [7] proofs that there is no algorithm to compute statement-minimal slices, it is possible to use data and control flow analysis to approximate the computation of program slices.
+Although Weiser [8] proofs that there is no algorithm to compute statement-minimal slices, it is possible to use data and control flow analysis to approximate the computation of program slices.
 
 ### Step 1: Compute Directly Relevant Variables
 
@@ -176,7 +176,7 @@ $$
 
 ## Efficient Algorithm for Sparse Slicing
 
-Weiser's algorithm performs a dense analysis of a program by associating information with pairs consisting of variables and program points. However, his approach to identifying data and control dependencies can be improved by utilizing more efficient data structures, rather than computing consecutive sets of transitively relevant statements [6]. To address this, we present an algorithm that computes program slices using a sparse analysis, which handles data and control dependencies more efficiently [4].
+Weiser's algorithm performs a dense analysis of a program by associating information with pairs consisting of variables and program points. However, his approach to identifying data and control dependencies can be improved by utilizing more efficient data structures, rather than computing consecutive sets of transitively relevant statements [7]. To address this, we present an algorithm that computes program slices using a sparse analysis, which handles data and control dependencies more efficiently [5].
 
 ### Dense vs. Sparse Analysis
 
@@ -220,7 +220,7 @@ The **influence region** of a block $$ B $$ is the set of blocks dominated by $$
 ### Algorithm Overview
 
 1. **Input**: A program in SSA form, represented as a dominance tree.
-2. **Output**: A sparse slice containing only relevant instructions.
+2. **Output**: A slice containing only relevant instructions.
 3. **Steps**:
    - Traverse the dominance tree to identify the influence region of each predicate.
    - Link predicates to variables defined within their influence region.
@@ -257,12 +257,14 @@ We encourage readers to consult the cited references for deeper insights into th
 
 [2] Cytron, Ron, et al. ***Efficiently Computing Static Single Assignment Form and the Control Dependence Graph***. ACM Transactions on Programming Languages and Systems, vol. 13, no. 4, pp. 451–90. 1991.
 
-[3] Rastello, Fabrice, and Florent Bouchez Tichadou, editors. ***SSA-Based Compiler Design***. Springer International Publishing, 2022.
+[3] Ferrante, Jeanne, et al. ***The Program Dependence Graph and Its Use in Optimization***. ACM Transactions on Programming Languages and Systems, vol. 9, no. 3, pp. 319–49. 1987.
 
-[4] Rodrigues, Bruno, et al. ***Sparse Representation of Implicit Flows with Applications to Side-Channel Detection***. Proceedings of the 25th International Conference on Compiler Construction, ACM, pp. 110–20. 2016.
+[4] Rastello, Fabrice, and Florent Bouchez Tichadou, editors. ***SSA-Based Compiler Design***. Springer International Publishing, 2022.
 
-[5] Rosen, Kenneth H., and Kamala Krithivasan. ***Discrete Mathematics and Its Applications***. 7. ed., Global ed, McGraw-Hill. 2013.
+[5] Rodrigues, Bruno, et al. ***Sparse Representation of Implicit Flows with Applications to Side-Channel Detection***. Proceedings of the 25th International Conference on Compiler Construction, ACM, pp. 110–20. 2016.
 
-[6] Tip, Frank. ***A Survey of Program Slicing Techniques***. CWI (Centre for Mathematics and Computer Science), NLD. 1994.
+[6] Rosen, Kenneth H., and Kamala Krithivasan. ***Discrete Mathematics and Its Applications***. 7. ed., Global ed, McGraw-Hill. 2013.
 
-[7] Weiser, Mark. ***Program Slicing***. IEEE Transactions on Software Engineering, vol. SE-10, no. 4, pp. 352–57. 1984.
+[7] Tip, Frank. ***A Survey of Program Slicing Techniques***. CWI (Centre for Mathematics and Computer Science), NLD. 1994.
+
+[8] Weiser, Mark. ***Program Slicing***. IEEE Transactions on Software Engineering, vol. SE-10, no. 4, pp. 352–57. 1984.
