@@ -180,7 +180,7 @@ Weiser's algorithm performs a dense analysis of a program by associating informa
 
 ### Dense vs. Sparse Analysis
 
-A dense analysis computes data and control dependencies by associating information with pairs of variables and program points. Each program point represents a region between two instructions in a Control Flow Graph (CFG). This approach has a worst-case complexity of $$ \mathcal{O}(V^2) $$, where $$ V $$ is the number of variables. However, by leveraging the **Single Information Property**, we can reduce this quadratic complexity to $$ \mathcal{O}(V) $$.
+A dense analysis computes data and control dependencies by associating information with pairs of variables and program points. Each program point represents a region between two instructions in a Control Flow Graph (CFG). This approach has a worst-case complexity of $$ \mathcal{O}(V^2) $$, where $$ V $$ is the number of variables. However, by leveraging the SSA form, we can reduce this quadratic complexity to $$ \mathcal{O}(V) $$.
 
 To achieve this, the program must first be transformed into Static Single Assignment (SSA) form. In SSA form, each variable is assigned exactly once, and all the information we need to track is bound to the variable's name. This transformation enables a more efficient computation of dependencies.
 
@@ -235,7 +235,7 @@ The **influence region** of a block $$ B $$ is the set of blocks dominated by $$
 ![Figure 4](/assets/img/posts/idempotent_backward_slices_post/program_slice.png)  
 **Figure 4**: (a) PDG fragment; (b) CFG fragment; (c) Outlined function.
 
-The algorithm presented here improves upon Weiser's dense analysis by leveraging the **Single Information Property** and transforming the program into SSA form. This transformation allows us to perform a sparse analysis, significantly reducing the complexity of computing program slices from $$ \mathcal{O}(V^2) $$ to $$ \mathcal{O}(V) $$.
+The algorithm presented here improves upon Weiser's dense analysis by transforming the program into SSA form. This transformation allows us to perform a sparse analysis, significantly reducing the complexity of computing program slices from $$ \mathcal{O}(V^2) $$ to $$ \mathcal{O}(V) $$.
 
 By utilizing the Program Dependency Graph (PDG) and Dominator Tree, we efficiently compute both data and control dependencies, enabling precise and efficient slicing. The example demonstrates how the algorithm operates on a real program, showcasing its ability to compute an idempotent backward slice with improved performance and accuracy.
 
@@ -257,7 +257,7 @@ We encourage readers to consult the cited references for deeper insights into th
 
 [2] Cytron, Ron, et al. ***Efficiently Computing Static Single Assignment Form and the Control Dependence Graph***. ACM Transactions on Programming Languages and Systems, vol. 13, no. 4, pp. 451–90. 1991.
 
-[3] Ferrante, Jeanne, et al. ***The Program Dependence Graph and Its Use in Optimization***. ACM Transactions on Programming Languages and Systems, vol. 9, no. 3, pp. 319–49. 1987.
+[3] Ferrante, Jeanne, et al. ***The Program Dependence Graph and Its Use in Optimization***. ACM Transactions on Programming Languages and Systems, vol. 9, no. 3, pp. 319–349. 1987.
 
 [4] Rastello, Fabrice, and Florent Bouchez Tichadou, editors. ***SSA-Based Compiler Design***. Springer International Publishing, 2022.
 
