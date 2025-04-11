@@ -38,9 +38,9 @@ A program is represented as a **control flow graph (CFG)**:
   - $$ N $$: set of program statements (nodes).
   - $$ E $$: directed edges representing control flow between statements.
 - A [**control flow graph**](https://en.wikipedia.org/wiki/Control-flow_graph){:target="_blank"} $$ (N, E, n_0) $$ is a digraph where $$ n_0 $$ is the entry node.
-  - **Start**: n_0, or a special node that is reachable by every node, but no node reaches it [5].
+  - **Start**: $$ n_0 $$, or a special node that can reach every other node, but no other node can reach it [5].
 - A **hammock graph** $$ (N, E, n_0, n_e) $$ [3] is a control flow graph with a unique exit node $$ n_e $$.
-  - **End**: $$ n_e $$, or a special node that is reachable by every node, but no node reaches it [5].
+  - **End**: $$ n_e $$, or a special node that is reachable from every other node, but does not reach any other node [5].
 
 ### Def-use Chain
 
