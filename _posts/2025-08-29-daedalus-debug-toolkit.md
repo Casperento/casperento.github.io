@@ -1,6 +1,11 @@
 ---
 layout: post
 title: Daedalus Debug Toolkit
+categories:
+- Compilers
+tags:
+- compilers
+- open-source
 date: 2025-08-29 21:12 -0300
 ---
 For the past year, I've been working on project [Daedalus](https://github.com/lac-dcc/Daedalus) at the [Compilers Lab - DCC/UFMG](https://lac-dcc.github.io/), while I'm pursuing my master's degree. We implemented an out-of-source LLVM pass that compresses code by leveraging *Program Slices* in *Gated Single Assignment* (GSA) form.
